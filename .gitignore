@@ -1,0 +1,5 @@
+app/target/*
+frontend/build/*
+app/logs
+app/.*
+*.DS_Store

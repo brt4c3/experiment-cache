@@ -1,0 +1,51 @@
+services:
+  mongo-fallback:
+    build:
+      context: ./mongo
+      dockerfile: Dockerfile
+    container_name: mongo-fallback
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - backend
+
+  springboot-app:
+    image: tomcat:9.0-jdk11
+    container_name: springboot-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app/target/webapp.war:/usr/local/tomcat/webapps/ROOT.war:ro
+      - ./app/logs:/usr/local/tomcat/logs
+    environment:
+      MONGODB_URI: mongodb://mongo-fallback:27017/testdb
+      MONGODB_USERNAME: testuser
+      MONGODB_PASSWORD: testpassword
+      MONGODB_DATABASE: testdb
+      MONGODB_AUTH_DB: admin
+
+    command: ["catalina.sh", "run"]
+    depends_on:
+      - mongo-fallback
+    networks:
+      - backend
+
+  react-frontend:
+    image: nginx:stable-alpine
+    container_name: react-frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend/build:/usr/share/nginx/html:ro
+    environment:
+      REACT_APP_BACKEND_URL: http://localhost:8080/cache
+    depends_on:
+      - springboot-app
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

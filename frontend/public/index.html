@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cache Frontend</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
+<script>
+  // This script is used to set the backend URL dynamically
+  window.BACKEND_URL = 'http://localhost:3001/cache';
+  // You can change this URL to point to your backend server
+  // For example, if your backend is running on a different port or domain,
+  // you can set it here.
+  // window.BACKEND_URL = 'http://tomcat-service/cache';
+</script>
+<script src="/static/js/bundle.js"></script>
+<script src="/static/js/vendors~main.chunk.js"></script>
+

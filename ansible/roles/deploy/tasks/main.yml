@@ -1,0 +1,85 @@
+- name: Start Minikube if not already running
+  shell: |
+    if ! minikube status | grep -q "host: Running"; then
+      minikube start
+    else
+      echo "Minikube already running."
+    fi
+  register: minikube_status
+
+- name: Set Minikube Docker environment
+  shell: eval $(minikube docker-env)
+  when: minikube_status.changed 
+  register: docker_env
+  changed_when: false
+
+# Maven build
+- name: Build WAR with Maven full-exception stuck trace debug info
+  shell: mvn clean package -e -X
+  args:
+    chdir: "{{ playbook_dir }}/../app"
+
+- name: Build Docker image for Spring Boot app
+  shell: docker build -t springboot-tomcat-app .
+  args:
+    chdir: "{{ playbook_dir }}/../app"
+
+- name: Load Docker image into Minikube for Spring Boot app
+  shell: minikube image load springboot-tomcat-app
+
+# Deploy MongoDB
+- name: Build Docker image for MongoDB
+  shell: docker build -t mongo-fallback .
+  args:
+    chdir: "{{ playbook_dir }}/../mongo"
+
+- name: Load Docker image into Minikube for MongoDB
+  shell: minikube image load mongo-fallback
+
+- name: Check if Mongo pod exists
+  shell: kubectl get pods -l app=mongo --no-headers | grep Running || true
+  register: mongo_pod_check
+  changed_when: false
+
+- name: Deploy MongoDB if pod is not running
+  shell: kubectl apply -f mongo-deployment.yml
+  args:
+    chdir: "{{ role_path }}/files"
+  when: mongo_pod_check.stdout == ""
+
+# Deploy Spring Boot app
+
+- name: Check if Spring Boot app pod exists
+  shell: kubectl get pods -l app=springboot-tomcat --no-headers | grep Running || true
+  register: springboot_pod_check
+  changed_when: false
+
+- name: Deploy Spring Boot app
+  shell: kubectl apply -f app-deployment.yml
+  args:
+    chdir: "{{ role_path }}/files"
+  when: springboot_pod_check.stdout == ""
+
+# Deploy React frontend
+
+- name: Build Docker image for React frontend
+  shell: docker build -t react-cache-frontend .
+  args:
+    chdir: "{{ playbook_dir }}/../frontend"
+
+- name: Load Docker image into Minikube for React frontend
+  shell: minikube image load react-cache-frontend
+
+- name: Check if React frontend service exists
+  shell: kubectl get svc react-frontend-service --no-headers || true
+  register: react_svc_check
+  changed_when: false
+
+- name: Deploy React frontend if service not found
+  shell: kubectl apply -f react-deployment.yml
+  args:
+    chdir: "{{ role_path }}/files"
+  when: react_svc_check.rc != 0
+
+
+

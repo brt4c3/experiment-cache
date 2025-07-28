@@ -1,0 +1,14 @@
+<config
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.ehcache.org/v3'
+    xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core.xsd'"
+>
+
+  <cache alias="getCache">
+    <diskStore path="java.io.tmpdir" />
+    <heap unit="entries">10000</heap>
+    <expiry>
+      <ttl unit="seconds">3</ttl>
+    </expiry>
+  </cache>
+</config>

@@ -1,0 +1,28 @@
+- hosts: localhost
+  gather_facts: no
+  roles:
+    - deploy
+
+
+#- hosts: localhost
+#  gather_facts: false
+#  vars:
+#    component: "{{ component | default('all', true) }}"
+#  tasks:
+#    - name: Deploy Mongo
+#      include_tasks: roles/deploy/tasks/main.yml
+#      when: component == "mongo" or component == "all"
+#      vars:
+#        deployment_file: roles/deploy/files/mongo-deployment.yml
+#
+#    - name: Deploy App
+#      include_tasks: roles/deploy/tasks/main.yml
+#      when: component == "app" or component == "all"
+#      vars:
+#        deployment_file: roles/deploy/files/app-deployment.yml
+#
+#    - name: Deploy React
+#      include_tasks: roles/deploy/tasks/main.yml
+#      when: component == "react" or component == "all"
+#      vars:
+#        deployment_file: roles/deploy/files/react-deployment.yml
