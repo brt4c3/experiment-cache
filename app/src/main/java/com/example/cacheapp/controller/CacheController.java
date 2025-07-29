@@ -1,8 +1,10 @@
-package com.test.webapp;
+package com.example.cacheapp.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.cacheapp.service.CacheService;
 
 @RestController
 @RequestMapping("/cache")
@@ -26,6 +28,9 @@ public class CacheController {
         for (String key : new String[] { "A", "B", "C" }) {
             cacheService.getFromCache(key);
         }
+        cacheService.getFromCache("A");
+        cacheService.getFromCache("B");
+        cacheService.getFromCache("C");
         Thread.sleep(1000);
         cacheService.getFromCache("A");
         cacheService.getFromCache("A");

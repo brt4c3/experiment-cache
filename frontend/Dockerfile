@@ -1,15 +1,19 @@
 # Stage 1: Build React app
 FROM node:18-alpine AS build
 
-RUN apk add --no-cache git
-
 WORKDIR /app
+COPY package.json yarn.lock* ./
+RUN npm install       # or yarn install
 
-COPY package*.json ./
-RUN npm install
+COPY public ./public
+COPY src ./src
+COPY .env ./.env
 
-COPY . .
 RUN npm run build
+
+# serve build with a static server…
+# e.g. install serve: npm install --global serve
+# CMD ["serve", "-s", "build", "-l", "3000"]
 
 # Stage 2: Serve with Nginx
 FROM nginx:stable-alpine
@@ -27,3 +31,8 @@ EXPOSE 80
 EXPOSE 3000
 
 CMD ["nginx", "-g", "daemon off;"]
+
+
+FROM node:18-alpine
+
+

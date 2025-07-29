@@ -1,6 +1,7 @@
-package com.test.webapp.repository;
+package com.example.cacheapp.repository;
 
-import com.test.webapp.model.KeyDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
+
+import com.example.cacheapp.model.KeyDocument;
 
 public interface KeyRepository extends MongoRepository<KeyDocument, String> {}

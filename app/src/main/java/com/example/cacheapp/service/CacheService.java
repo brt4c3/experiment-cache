@@ -1,12 +1,13 @@
-package com.test.webapp;
+package com.example.cacheapp.service;
 
-import com.test.webapp.model.KeyDocument;
-import com.test.webapp.repository.KeyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import com.example.cacheapp.model.KeyDocument;
+import com.example.cacheapp.repository.KeyRepository;
 
 @Service
 public class CacheService {

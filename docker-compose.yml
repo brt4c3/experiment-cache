@@ -12,12 +12,13 @@ services:
       - backend
 
   springboot-app:
-    image: tomcat:9.0-jdk11
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     container_name: springboot-app
     ports:
       - "8080:8080"
     volumes:
-      - ./app/target/webapp.war:/usr/local/tomcat/webapps/ROOT.war:ro
       - ./app/logs:/usr/local/tomcat/logs
     environment:
       MONGODB_URI: mongodb://mongo-fallback:27017/testdb
@@ -33,7 +34,9 @@ services:
       - backend
 
   react-frontend:
-    image: nginx:stable-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: react-frontend
     ports:
       - "3000:80"
@@ -41,6 +44,7 @@ services:
       - ./frontend/build:/usr/share/nginx/html:ro
     environment:
       REACT_APP_BACKEND_URL: http://localhost:8080/cache
+    command: ["serve", "-s", "build", "-l", "3000"]
     depends_on:
       - springboot-app
     networks:

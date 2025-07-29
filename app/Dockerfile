@@ -6,19 +6,19 @@ EXPOSE 8080
 RUN rm -rf /usr/local/tomcat/webapps/*
 
 # Create non-root tomcat user
-#RUN groupadd -r tomcat && \
-#    useradd -r -g tomcat --home-dir /usr/local/tomcat --shell /bin/false tomcat
+RUN groupadd -r tomcat && \
+    useradd -r -g tomcat --home-dir /usr/local/tomcat --shell /bin/false tomcat
 
 # Set permissions for logs and temp dirs
-#RUN mkdir -p /usr/local/tomcat/logs && \
-#    chown -R tomcat:tomcat /usr/local/tomcat/logs /usr/local/tomcat/temp /usr/local/tomcat/webapps
+RUN mkdir -p /usr/local/tomcat/logs && \
+    chown -R tomcat:tomcat /usr/local/tomcat/logs /usr/local/tomcat/temp /usr/local/tomcat/webapps
 
 # Copy your app
-#COPY target/webapp.war /usr/local/tomcat/webapps/ROOT.war
-#RUN chown tomcat:tomcat /usr/local/tomcat/webapps/ROOT.war
+COPY target/cache-app-1.0.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
+RUN chown tomcat:tomcat /usr/local/tomcat/webapps/ROOT.war
 
 # Switch to tomcat user
-#USER tomcat
+USER tomcat
 
 # Run Tomcat
 CMD ["catalina.sh", "run"]

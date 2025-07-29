@@ -1,4 +1,4 @@
-package com.test.webapp;
+package com.example.cacheapp.config;
 
 import java.util.concurrent.TimeUnit;
 import javax.cache.configuration.MutableConfiguration;
