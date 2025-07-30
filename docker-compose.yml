@@ -15,7 +15,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-      target: app 
+      target: runtime 
       args:
         - MONGODB_URI=mongodb://mongo-fallback:27017/testdb
     container_name: springboot-app
