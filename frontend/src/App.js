@@ -1,62 +1,135 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import createAsciiCanvas from "./asciiCanvas";
+import "@fontsource/orbitron/400.css"; 
+import "@fontsource/orbitron/700.css"; 
 import "./App.css";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
 
-function App() {
+const WaveHeading = ({ text }) => (
+  <h1>
+    {text.split("").map((char, idx) => (
+      <span key={idx}>{char}</span>
+    ))}
+  </h1>
+);
+
+const App = () => {
   const [key, setKey] = useState("");
   const [response, setResponse] = useState("");
   const [log, setLog] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const isValidKey = (key) => ["A", "B", "C"].includes(key.toUpperCase());
+  // initialize our WebGL ASCII animator
+  useEffect(() => {
+    const ascii = createAsciiCanvas("ascii-canvas");
+    return () => ascii.destroy();
+  }, []);
 
-  const fetchCache = async () => {
-    const normalizedKey = key.toUpperCase();
-    if (!isValidKey(normalizedKey)) {
-      setError("Only keys A, B, or C are allowed.");
+  const isValidKey = (k) => /^[A-V]$/.test(k.toUpperCase());
+
+  const addLog = (msg) => {
+    const t = new Date().toLocaleTimeString();
+    setLog((prev) => [`[${t}] ${msg}`, ...prev]);
+  };
+
+  const handleFetch = async () => {
+    const normalized = key.toUpperCase();
+    if (!isValidKey(normalized)) {
+      setError("Only keys A to V allowed.");
       return;
     }
-
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/${normalizedKey}`);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const data = await res.text();
-      const time = new Date().toLocaleTimeString();
-      setLog((prev) => [`[${time}] ${data}`, ...prev]);
-      setResponse(data);
-    } catch (err) {
-      console.error(err);
+      const res = await fetch(`${BACKEND_URL}/cache/${normalized}`);
+      if (!res.ok) throw new Error(res.statusText);
+      const text = await res.text();
+      addLog(text);
+      setResponse(text);
+    } catch (e) {
+      console.error(e);
+      addLog("Fetch error.");
       setResponse("Error contacting backend.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleRunSequence = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/cache/run-sequence`);
+      if (!res.ok) throw new Error(res.statusText);
+      const txt = await res.text();
+      addLog(txt);
+      setResponse(txt);
+    } catch (e) {
+      console.error(e);
+      addLog("Sequence error.");
+      setResponse("Error running sequence.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClear = () => {
+    setLog([]);
+    setResponse("");
+    setError("");
+  };
+
   return (
-    <div className="App">
-      <h1>Cache Monitor</h1>
-      <input
-        type="text"
-        value={key}
-        placeholder="Enter key (A, B, or C)"
-        onChange={(e) => setKey(e.target.value.toUpperCase())}
-        onKeyDown={(e) => e.key === "Enter" && fetchCache()}
-        autoFocus
-      />
-      <button onClick={fetchCache} disabled={loading || !key}>
-        {loading ? "Loading..." : "Fetch"}
-      </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <h2>Response:</h2>
-      <p>{response}</p>
-      <h2>Log:</h2>
-      <pre>{log.join("\n")}</pre>
+    <div className="viewport">
+      {/* Background layer: WebGL ASCII animation only */}
+      <canvas id="ascii-canvas" className="background-viewport" />
+
+      {/* Foreground layer: your React UI */}
+      <div className="foreground-viewport">
+        <header>
+          <WaveHeading text="Cache Monitor" />
+        </header>
+
+        <div className="controls">
+          <input
+            type="text"
+            value={key}
+            placeholder="A to V"
+            onChange={(e) => setKey(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleFetch()}
+            disabled={loading}
+          />
+          <button onClick={handleFetch} disabled={loading || !isValidKey(key)}>
+            {loading ? "..." : "Fetch"}
+          </button>
+          <button onClick={handleRunSequence} disabled={loading}>
+            Run Sequence
+          </button>
+          <button onClick={handleClear} disabled={loading || log.length === 0}>
+            Clear
+          </button>
+        </div>
+
+        {error && <div className="error">{error}</div>}
+
+        <section className="response-section">
+          <h2>Latest</h2>
+          <pre className="response">{response}</pre>
+        </section>
+
+        <section className="log-section">
+          <h2>Log</h2>
+          {log.length ? (
+            <pre className="log-list">{log.join("\n")}</pre>
+          ) : (
+            <p>No entries.</p>
+          )}
+        </section>
+      </div>
     </div>
   );
-}
+};
 
 export default App;

@@ -1,0 +1,21 @@
+lowercaseOutputName: true
+rules:
+  # Capture MemoryPool usage (young/old/totals)
+  - pattern: "java.lang<type=MemoryPool,name=(.+)><>Usage(?:Init|Used|Committed|Max): ([0-9]+)"
+    name: jvm_memory_pool_bytes
+    labels:
+      pool: "$1"
+    type: GAUGE
+
+  # GC count & time
+  - pattern: "java.lang<type=GarbageCollector,name=(.+)><>CollectionCount: ([0-9]+)"
+    name: jvm_gc_collection_seconds_count
+    labels:
+      gc: "$1"
+    type: COUNTER
+
+  - pattern: "java.lang<type=GarbageCollector,name=(.+)><>CollectionTime: ([0-9]+)"
+    name: jvm_gc_collection_seconds_sum
+    labels:
+      gc: "$1"
+    type: COUNTER

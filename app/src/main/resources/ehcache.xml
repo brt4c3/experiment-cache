@@ -26,8 +26,8 @@
   <cache alias="getCache">
     <key-type>java.lang.String</key-type>
     <value-type>java.lang.Object</value-type>
-    <expiry><ttl unit="seconds">3600</ttl></expiry>
-    <resources><heap unit="entries">1000</heap></resources>
+    <expiry><ttl unit="seconds">3</ttl></expiry>
+    <resources><heap unit="entries">21</heap></resources>
   </cache>
 
   <!-- orders cache -->

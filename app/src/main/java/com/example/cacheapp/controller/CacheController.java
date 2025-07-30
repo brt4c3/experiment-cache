@@ -25,25 +25,74 @@ public class CacheController {
 
     @GetMapping("/run-sequence")
     public ResponseEntity<String> runSequence() throws InterruptedException {
-        for (String key : new String[] { "A", "B", "C" }) {
-            cacheService.getFromCache(key);
+        for (String k : new String[] { "A", "B", "C" }) {
+            cacheService.getFromCache(k);
         }
+        // A, B, C: hot → cache hits
         cacheService.getFromCache("A");
         cacheService.getFromCache("B");
         cacheService.getFromCache("C");
+
         Thread.sleep(1000);
+        // stales after TTL?
         cacheService.getFromCache("A");
         cacheService.getFromCache("A");
+
         Thread.sleep(1000);
         cacheService.getFromCache("B");
         cacheService.getFromCache("B");
+
         Thread.sleep(1000);
         cacheService.getFromCache("C");
         cacheService.getFromCache("C");
+
+        Thread.sleep(1000);
+        // wrap up
+        cacheService.getFromCache("A");
+        cacheService.getFromCache("B");
+        cacheService.getFromCache("C");
+        cacheService.getFromCache("D");
+        cacheService.getFromCache("E"); 
+        cacheService.getFromCache("F");
+        cacheService.getFromCache("G");
+        cacheService.getFromCache("H");
+        cacheService.getFromCache("I");
+        cacheService.getFromCache("J");
+        cacheService.getFromCache("K");
+        cacheService.getFromCache("L");
+        cacheService.getFromCache("M");
+        cacheService.getFromCache("N");
+        cacheService.getFromCache("O");
+        cacheService.getFromCache("P");
+        cacheService.getFromCache("Q");
+        cacheService.getFromCache("R");
+        cacheService.getFromCache("S");
+        cacheService.getFromCache("T");
+        cacheService.getFromCache("U");
+        cacheService.getFromCache("V");
         Thread.sleep(1000);
         cacheService.getFromCache("A");
         cacheService.getFromCache("B");
         cacheService.getFromCache("C");
+        cacheService.getFromCache("D");
+        cacheService.getFromCache("E"); 
+        cacheService.getFromCache("F");
+        cacheService.getFromCache("G");
+        cacheService.getFromCache("H");
+        cacheService.getFromCache("I");
+        cacheService.getFromCache("J");
+        cacheService.getFromCache("K");
+        cacheService.getFromCache("L");
+        cacheService.getFromCache("M");
+        cacheService.getFromCache("N");
+        cacheService.getFromCache("O");
+        cacheService.getFromCache("P");
+        cacheService.getFromCache("Q");
+        cacheService.getFromCache("R");
+        cacheService.getFromCache("S");
+        cacheService.getFromCache("T");
+        cacheService.getFromCache("U");
+        cacheService.getFromCache("V");
 
         return ResponseEntity.ok("Sequence run complete");
     }

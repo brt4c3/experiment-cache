@@ -15,11 +15,13 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
+      target: app 
       args:
         - MONGODB_URI=mongodb://mongo-fallback:27017/testdb
     container_name: springboot-app
     ports:
       - "8080:8080"  # host:container
+      - "12345:12345"  # JMX Exporter metrics
     environment:
       # Spring Boot picks up this URI automatically
       SPRING_DATA_MONGODB_URI: mongodb://mongo-fallback:27017/testdb
@@ -38,13 +40,52 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - REACT_APP_BACKEND_URL=http://localhost:8080/cache
+        - REACT_APP_BACKEND_URL=http://localhost:8080
     image: myorg/react-frontend:latest
     ports:
       - "3000:80"        # host 3000 → container 80
     restart: unless-stopped
     depends_on: 
       - springboot-app
+    networks:
+      - backend
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - backend
+
+  node-exporter:
+    build:
+      context: ./app             # Dockerfile のあるディレクトリ
+      dockerfile: Dockerfile
+      target: node-exporter      # 上で定義したステージ名
+    container_name: node-exporter
+    pid: "host"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - "9100:9100"
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    # publish container’s 3000 → random host port
+    ports:
+      - "3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"   # change as you like
+    depends_on:
+      - prometheus
     networks:
       - backend
 
