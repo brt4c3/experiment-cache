@@ -37,16 +37,15 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: react-frontend
+      args:
+        - REACT_APP_BACKEND_URL=http://localhost:8080/cache
+    image: myorg/react-frontend:latest
     ports:
-      - "3000:80"
-    volumes:
-      - ./frontend/build:/usr/share/nginx/html:ro
-    environment:
-      REACT_APP_BACKEND_URL: http://localhost:8080/cache
-    command: ["serve", "-s", "build", "-l", "3000"]
+      - "3000:80"        # host 3000 → container 80
+    restart: unless-stopped
     depends_on:
-      - springboot-app
+      springboot-app:
+        condition: service_healthy
     networks:
       - backend
 

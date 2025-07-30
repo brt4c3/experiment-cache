@@ -4,20 +4,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Cache Frontend</title>
+    <!-- If you have a manifest or favicon: -->
+    <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+
+    <!-- ❶ Inject your backend URL (from build‑time env) -->
+    <script>
+      // This will be replaced during build with your --build-arg REACT_APP_BACKEND_URL
+      window.BACKEND_URL = '%REACT_APP_BACKEND_URL%';
+    </script>
+
+    <!-- ❷ Let react‑scripts inject the correct bundles for you -->
+    <!-- (You never need to manually add <script src="/static/js/..."> tags) -->
   </body>
 </html>
-<script>
-  // This script is used to set the backend URL dynamically
-  window.BACKEND_URL = 'http://localhost:3001/cache';
-  // You can change this URL to point to your backend server
-  // For example, if your backend is running on a different port or domain,
-  // you can set it here.
-  // window.BACKEND_URL = 'http://tomcat-service/cache';
-</script>
-<script src="/static/js/bundle.js"></script>
-<script src="/static/js/vendors~main.chunk.js"></script>
-
+<!-- /index.html -->

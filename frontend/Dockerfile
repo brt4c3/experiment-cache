@@ -1,38 +1,45 @@
-# Stage 1: Build React app
-FROM node:18-alpine AS build
+# ┌──────────────────────────┐
+# │ Stage 1: Build React App │
+# └──────────────────────────┘
+FROM node:18-alpine AS builder
 
+# 1. Set workdir, copy manifest, install deps
 WORKDIR /app
-COPY package.json yarn.lock* ./
-RUN npm install       # or yarn install
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm install --production 
 
+# Don't force fix vulnerabilities in production builds
 COPY public ./public
-COPY src ./src
-COPY .env ./.env
+COPY src    ./src
 
+# 2. Copy source, inject BACKEND_URL at build time
+ARG REACT_APP_BACKEND_URL
+ENV REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+
+# 3. Build the static assets
 RUN npm run build
 
-# serve build with a static server…
-# e.g. install serve: npm install --global serve
-# CMD ["serve", "-s", "build", "-l", "3000"]
-
-# Stage 2: Serve with Nginx
+# ┌────────────────────────────────┐
+# │ Stage 2: Serve via Nginx 🚀   │
+# └────────────────────────────────┘
 FROM nginx:stable-alpine
 
-# Remove default Nginx page
+# 4. Remove default content
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy built React files
-COPY --from=build /app/build /usr/share/nginx/html
+# 5. Add custom nginx.conf (see next)
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Optional: Add healthcheck or nginx config
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 6. Copy built assets
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# 7. Healthcheck for orchestration
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
+  CMD wget --quiet --tries=1 --spider http://localhost/healthz || exit 1
 
 EXPOSE 80
-EXPOSE 3000
-
 CMD ["nginx", "-g", "daemon off;"]
-
-
-FROM node:18-alpine
-
-
+# ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+# │ nginx.conf: Nginx config for serving the React app. See https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/. │
+# └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

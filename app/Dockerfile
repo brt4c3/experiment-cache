@@ -14,8 +14,10 @@ RUN mkdir -p /usr/local/tomcat/logs && \
     chown -R tomcat:tomcat /usr/local/tomcat/logs /usr/local/tomcat/temp /usr/local/tomcat/webapps
 
 # Copy your app
-COPY target/cache-app-1.0.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
-RUN chown tomcat:tomcat /usr/local/tomcat/webapps/ROOT.war
+RUN mkdir -p /usr/local/tomcat/webapps/cache-app
+COPY target/cache-app-1.0.0-SNAPSHOT /usr/local/tomcat/webapps/cache-app
+RUN chown tomcat:tomcat /usr/local/tomcat/webapps/cache-app -R
+RUN chmod +rwx /usr/local/tomcat/webapps/cache-app -R
 
 # Switch to tomcat user
 USER tomcat
