@@ -15,21 +15,21 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
+      args:
+        - MONGODB_URI=mongodb://mongo-fallback:27017/testdb
     container_name: springboot-app
     ports:
-      - "8080:8080"
-    volumes:
-      - ./app/logs:/usr/local/tomcat/logs
+      - "8080:8080"  # host:container
     environment:
-      MONGODB_URI: mongodb://mongo-fallback:27017/testdb
-      MONGODB_USERNAME: testuser
-      MONGODB_PASSWORD: testpassword
-      MONGODB_DATABASE: testdb
-      MONGODB_AUTH_DB: admin
-
-    command: ["catalina.sh", "run"]
+      # Spring Boot picks up this URI automatically
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-fallback:27017/testdb
     depends_on:
       - mongo-fallback
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:8080/cache"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     networks:
       - backend
 
@@ -43,9 +43,8 @@ services:
     ports:
       - "3000:80"        # host 3000 → container 80
     restart: unless-stopped
-    depends_on:
-      springboot-app:
-        condition: service_healthy
+    depends_on: 
+      - springboot-app
     networks:
       - backend
 
