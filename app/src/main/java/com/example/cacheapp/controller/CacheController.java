@@ -46,53 +46,20 @@ public class CacheController {
         cacheService.getFromCache("C");
         cacheService.getFromCache("C");
 
-        Thread.sleep(1000);
+        Thread.sleep(3000);
         // wrap up
-        cacheService.getFromCache("A");
-        cacheService.getFromCache("B");
-        cacheService.getFromCache("C");
-        cacheService.getFromCache("D");
-        cacheService.getFromCache("E"); 
-        cacheService.getFromCache("F");
-        cacheService.getFromCache("G");
-        cacheService.getFromCache("H");
-        cacheService.getFromCache("I");
-        cacheService.getFromCache("J");
-        cacheService.getFromCache("K");
-        cacheService.getFromCache("L");
-        cacheService.getFromCache("M");
-        cacheService.getFromCache("N");
-        cacheService.getFromCache("O");
-        cacheService.getFromCache("P");
-        cacheService.getFromCache("Q");
-        cacheService.getFromCache("R");
-        cacheService.getFromCache("S");
-        cacheService.getFromCache("T");
-        cacheService.getFromCache("U");
-        cacheService.getFromCache("V");
-        Thread.sleep(1000);
-        cacheService.getFromCache("A");
-        cacheService.getFromCache("B");
-        cacheService.getFromCache("C");
-        cacheService.getFromCache("D");
-        cacheService.getFromCache("E"); 
-        cacheService.getFromCache("F");
-        cacheService.getFromCache("G");
-        cacheService.getFromCache("H");
-        cacheService.getFromCache("I");
-        cacheService.getFromCache("J");
-        cacheService.getFromCache("K");
-        cacheService.getFromCache("L");
-        cacheService.getFromCache("M");
-        cacheService.getFromCache("N");
-        cacheService.getFromCache("O");
-        cacheService.getFromCache("P");
-        cacheService.getFromCache("Q");
-        cacheService.getFromCache("R");
-        cacheService.getFromCache("S");
-        cacheService.getFromCache("T");
-        cacheService.getFromCache("U");
-        cacheService.getFromCache("V");
+        int l = 0;
+        while (l < 5) {
+            for (String key : new String[] {
+                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+                "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V"
+            }) {
+                cacheService.getFromCache(key);
+                System.out.println("Loop " + l + ": Accessing key " + key);
+            }
+            Thread.sleep(1000);  // Simulate time delay to test TTL and GC impact
+            l++;
+        }
 
         return ResponseEntity.ok("Sequence run complete");
     }
